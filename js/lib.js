@@ -3,6 +3,11 @@
 //
 function map_initialize() {
 
+    var map_data = generator();
+    var locations = map_data.locations;
+    var zoom = map_data.zoom;
+    var center = map_data.center;
+
     var latlng = new google.maps.LatLng(center.location.latitude, center.location.longitude);
 
     var myOptions = {
