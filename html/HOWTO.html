@@ -1,0 +1,103 @@
+<html>
+<body>
+<h1>Introduction</h1>
+<p>
+geoloc is a command which helps utilise information that Google maintains about the physical locations of WiFi access points.
+</p>
+<p>It has functions for interrogating the Google location services and for building HTML and JavaScript that can be used to plot the returned
+information on a map.</p>
+<p>
+For some background, refer to: <a href="http://orwelliantremors.blogspot.com/2010/12/mobile-80211-parole-bracelet-for-man-in.html">http://orwelliantremors.blogspot.com/2010/12/mobile-80211-parole-bracelet-for-man-in.html</a>
+</p>
+<h1>Installation</h1>
+<p>These instructions assume you have a Unix like command line environment with bash, git, python and curl (with SSL libraries installed).</p>
+<dl>
+<dt>
+Clone the github repository
+<dd>
+<pre>
+# if you chose another location, override with export GEOLOC_HOME=... in your .bashrc
+git clone git://github.com/jonseymour/geoloc.git ~/.geoloc
+</pre>
+</dd>
+<dt>Add geoloc to your path</dt>
+<dd>
+<pre>
+sudo ln -sf ~/.geoloc/bin/geoloc.sh /usr/local/bin/geoloc
+</pre>
+</dd>
+<h1>Usage</h1>
+<h2>Show the location of a MAC address</h2>
+This command will retrieve the location details for a mac address from Google and display the formatted json document.
+<pre>
+geoloc locate 002568CC80EB | geoloc format_json
+</pre>
+<h2>Show the location of a MAC address on map</h2>
+This command will retrieve the location details for a mac address from Google and display the location on a map.
+<pre>
+geoloc show 02568CC80EB
+</pre>
+<h2>Create a new map</h2>
+This command will create a new, empty map.
+<pre>
+geoloc map create mymap
+</pre>
+<h2>Add a mac address to a map</h2>
+This command will add a new mac address to the map.
+<pre>
+geoloc map add mymap 002568CC80EB
+</pre>
+<h2>Import a kismet CSV file into the map</h2>
+This command will import a kismet CSV file. The file should have fields delimited by semicolons, the mac address should be in column 4, the SSID in column 3.
+One way to make these files is to run aircrack-ng(1).
+<pre>
+geoloc map import-kismet mymap <some-file.kismet.csv
+</pre>
+<h2>Build the map HTML</h2>
+This command will generate the HTML (and Javascript) for a mostly static copy of the map (you still need live access to Google Maps!).
+<pre>
+geoloc map build mymap
+</pre>
+<h2>Open the map</h2>
+This command will open the map in a browser (assuming you have xdg-open installed).
+<pre>
+geoloc map open mymap
+</pre>
+<h2>Tweak the script</h2>
+Don't like how it works? You can edit the script yourself.
+<pre>
+geoloc edit
+</pre>
+<h1>File System Structure</h1>
+<dl>
+<dt>bin/</dt>
+<dd>contains the geoloc.sh command</dd>
+<dt>js/</dt>
+<dd>contains the JavaScript library used to render the map</dd>
+<dt>html/</dt>
+<dd>contains the HTML template used for building new maps</dd>
+<dt>db/mac_addresses</dt>
+<dd>contains one subdirectory for each mac address</dd>
+<dt>db/mac_address/{mac}/</dt>
+<dd>contains JSON documents describing a MAC address</dd>
+<dt>db/mac_address/{mac}/current</dt>
+<dd>contains the JSON document for the named mac address</dd>
+<dt>db/maps</dt>
+<dd>contains one directory for each map</dd>
+<dt>db/maps/{map}/zoom</dt>
+<dd>Contains the map zoom value.</dd>
+<dt>db/maps/{map}/center</dt>
+<dd>Contains a symbolic link to the mac address to be used for the center of the map. Usually FFFFFFFFFFFF - the local center</dd>
+<dt>db/maps/{map}/mac_addresses/{mac}</dt>
+<dd>Contains one symbolic link for each address to appear on the map</dd>
+</dl>
+<h1>TODO</h1>
+Features I might add if I get the time:
+<ul>
+<li>a web front end</li>
+<li>support for refreshing the cache</li>
+<li>improved user experience for the generated maps</li>
+</ul>
+
+</body>
+</html>
