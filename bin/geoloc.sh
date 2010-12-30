@@ -7,7 +7,7 @@
 #
 
 SCRIPT=$0
-GEOLOC_HOME=$(cd $(dirname "$SCRIPT")/..; pwd)
+GEOLOC_HOME=${GEOLOC_HOME:-~/.geoloc}
 
 # something bad happened, adios...
 die()
