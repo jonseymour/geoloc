@@ -22,6 +22,12 @@ edit()
     ${EDITOR:-emacs -nw} $SCRIPT
 }
 
+# controlled dispatch of a sub-function
+dispatch()
+{
+    "$@"
+}
+
 # POST a json structure to the specified URL
 json_call()
 {
@@ -105,6 +111,12 @@ cache_dir()
     echo ${GEOLOC_HOME}/db/mac_addresses/$mac
 }
 
+map_dir()
+{
+    local map=$1
+    echo ${GEOLOC_HOME}/db/maps/$map
+}
+
 # Locate a mac address, but only if we haven't cached it.
 locate()
 {
@@ -145,6 +157,102 @@ json_to_csv()
     local ssid=$2
 
     format_json | sed -n "s/.*\"latitude\": *\(.*,\).*/\1/p;s/.*\"longitude\": *\(.*\)/\1\n/p;" | tr -d \\012 | sed "s/^/$(shrink_mac $mac),/;s/\$/,$ssid\n/"
+}
+
+# Functions on map objects
+# map create {map}
+# map open {map}
+# map list
+# map build {map}
+# map add {map} {addr}
+map()
+{
+    create()
+    {
+         local map=$1
+         test -n "$map" || die "usage: map create map"
+
+         local dir=$(map_dir $map)	
+         test -d $dir && die "fatal: map $map already exists"
+
+         mkdir -p $dir || die "fatal: unable to create map directory: $dir"
+         (
+              cp ${GEOLOC_HOME}/html/maps/default/index.html $dir 
+              cp ${GEOLOC_HOME}/html/maps/default/generator.js $dir
+              mkdir $dir/mac_addresses
+              ln -sf ../../mac_addresses/FFFFFFFFFFFF $dir/center
+              echo 14 > $dir/zoom
+         ) || ( 
+            rm -rf $dir
+         )
+    }
+
+    list()
+    {
+         ( 
+	     cd ${GEOLOC_HOME}/db/maps
+	     find . -maxdepth 1 -type d | sed "s/^..//;/^.\$/d"
+         )
+    }
+
+    mac_addresses()
+    {
+         local map=$1
+         local dir=$(map_dir $map)
+         test -d "$dir" || die "usage: map mac_addresses map"
+
+         ( 
+	     cd $dir/mac_addresses
+	     ( find -maxdepth 1 -type d; find -maxdepth 1 -type l)  | sed "s/^..//;/^.\$/d"
+         )
+    }
+
+    open()
+    {
+         local map=$1
+         local dir=$(map_dir $map)
+         test -d "$dir" || die "usage: map open map"
+         xdg-open $dir/index.html
+    }
+
+    add()
+    {
+         local map=$1
+         local addr=$2
+         local dir=$(map_dir $map)
+         test -d "$dir" && test -n "$addr" || die "usage: map add map addr"
+         test -e $dir/mac_addresses/$addr || ln -sf ../../../mac_addresses/$addr $dir/mac_addresses/$addr
+    } 
+
+    build()
+    {
+         local map=$1
+         local dir=$(map_dir $map)
+         test -d "$dir" || die "usage: map open map"
+
+         (
+             cd $dir
+             locate FFFFFFFFFFFF # ensure the centre of the map is located
+cat >generator.js <<EOF	     
+function generator() {
+    return {
+        zoom: $(cat zoom),
+        center: $(cat center/current),
+        locations: [
+            $( mac_addresses $map | while read m
+               do
+                   locate $m
+                   echo ,
+               done
+            )
+        ]
+    }
+}
+EOF
+         )
+    }
+
+    dispatch "$@"
 }
 
 cmd=$1
