@@ -240,8 +240,10 @@ map()
          local map=$1
          local addr=$2
          local dir=$(map_dir $map)
-         test -d "$dir" && test -n "$addr" || die "usage: map add map addr"
-         test -e $dir/mac_addresses/$addr || ln -sf ../../../mac_addresses/$addr $dir/mac_addresses/$addr
+   
+         local mac=$(shrink_mac $addr)
+         test -d "$dir" && test -n "$mac" || die "usage: map add map mac"
+         test -e $dir/mac_addresses/$mac || ln -sf ../../../mac_addresses/$mac $dir/mac_addresses/$mac
     } 
 
     import-kismet()
