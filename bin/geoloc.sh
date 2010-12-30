@@ -100,7 +100,7 @@ fetch_location()
 
     test -n "$mac" || die "usage: locate mac [ssid]"
 
-    json_call https://www.google.com:443/loc/json "$(locate_template $mac $ssid)" | sed "s/}\$/,\"mac_address\":\"$mac\",\"ssid\":\"$ssid\",\"accessed_at\":\"$(date +%Y%m%dT%H%M%S)\"}/"
+    json_call https://www.google.com:443/loc/json "$(locate_template $mac $ssid)" | sed "s/}\$/,\"mac_address\":\"$mac\",\"ssid\":\"$ssid\",\"accessed_at\":\"$(date +%Y%m%dT%H%M%S)\"}/;s/{,/{/"
 }
 
 # Output the location of the mac_address cache

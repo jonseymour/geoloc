@@ -22,6 +22,12 @@ function map_initialize() {
     {
         var title = locations[i].mac_address + " - " + locations[i].ssid + " - " + locations[i].accessed_at;
 
+        if (locations[i].location == undefined)
+        {
+	    continue;
+	}    
+       
+
         if (locations[i].location.address != undefined) {
             title = title + " - " + locations[i].location.address.street_number + ", " + locations[i].location.address.street
         }
