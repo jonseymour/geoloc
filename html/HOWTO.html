@@ -51,7 +51,7 @@ geoloc map add mymap 002568CC80EB
 This command will import a kismet CSV file. The file should have fields delimited by semicolons, the mac address should be in column 4, the SSID in column 3.
 One way to make these files is to run aircrack-ng(1).
 <pre>
-geoloc map import-kismet mymap <some-file.kismet.csv
+geoloc map import-kismet mymap &lt; some-file.kismet.csv
 </pre>
 <h2>Build the map HTML</h2>
 This command will generate the HTML (and Javascript) for a mostly static copy of the map (you still need live access to Google Maps!).
@@ -84,8 +84,12 @@ geoloc edit
 <dd>contains the JSON document for the named mac address</dd>
 <dt>db/maps</dt>
 <dd>contains one directory for each map</dd>
+<dt>db/maps/{map}/index.html</dt>
+<dd>contains the html for a Google Map. Created by map create {map}.</dd>
+<dt>db/maps/{map}/generator.js</dt>
+<dd>contains the compiled data for the map. Created by map build {map}.</dd>
 <dt>db/maps/{map}/zoom</dt>
-<dd>Contains the map zoom value.</dd>
+<dd>Contains the map zoom value. Created by map create {map}.</dd>
 <dt>db/maps/{map}/center</dt>
 <dd>Contains a symbolic link to the mac address to be used for the center of the map. Usually FFFFFFFFFFFF - the local center</dd>
 <dt>db/maps/{map}/mac_addresses/{mac}</dt>
