@@ -288,6 +288,13 @@ EOF
     dispatch "$@"
 }
 
+check_init()
+{
+    test -f ${GEOLOC_HOME}/js/lib.js || die "fatal: GEOLOC_HOME=$GEOLOC_HOME looks incorrect"
+    test -f ${GEOLOC_HOME}/html/maps/default/index.html || die "fatal: GEOLOC_HOME=$GEOLOC_HOME looks incorrect"
+    test -f ${GEOLOC_HOME}/html/maps/default/generator.js || die "fatal: GEOLOC_HOME=$GEOLOC_HOME looks incorrect"
+}
+
 cmd=$1
 test -n "$cmd" && shift 1
 
