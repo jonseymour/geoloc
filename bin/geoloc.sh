@@ -232,7 +232,7 @@ map()
 
          (
              cd $dir
-             locate FFFFFFFFFFFF # ensure the centre of the map is located
+             locate FFFFFFFFFFFF > /dev/null # ensure the centre of the map is located
 cat >generator.js <<EOF	     
 function generator() {
     return {
