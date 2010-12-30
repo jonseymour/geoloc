@@ -244,6 +244,19 @@ map()
          test -e $dir/mac_addresses/$addr || ln -sf ../../../mac_addresses/$addr $dir/mac_addresses/$addr
     } 
 
+    import-kismet()
+    {
+         local map=$1
+         local dir=$(map_dir $map)
+         test -d "$dir" || die "usage: map import-kismet map < file"
+ 
+         cut -f4,3 -d\; | sed 1d | sort | uniq | awk 'BEGIN { FS=";" } { print $2 " " $1 }' | while read mac ssid
+         do
+              locate "$mac" "$ssid"
+	      add "$map" "$mac"
+         done
+    }
+
     build()
     {
          local map=$1
