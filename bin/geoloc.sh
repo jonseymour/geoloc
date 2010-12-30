@@ -263,11 +263,14 @@ map()
          local dir=$(map_dir $map)
          test -d "$dir" || die "usage: map import-kismet map < file"
  
-         cut -f4,3 -d\; | sed 1d | sort | uniq | awk 'BEGIN { FS=";" } { print $2 " " $1 }' | while read mac ssid
+         rewrite-kismet | \
+         while read mac ssid
          do
-              locate "$mac" "$ssid"
+              test -n "$mac" && 
+              loc=$(locate "$mac" "$ssid") &&
+              echo "$mac $ssid" &&
 	      add "$map" "$mac"
-         done
+         done 
     }
 
     build()
@@ -287,8 +290,8 @@ function generator() {
         locations: [
             $( mac_addresses $map | while read m
                do
-                   locate $m
-                   echo ,
+                   loc=$(locate $m)
+                   test -n "$loc" && echo "${loc},"
                done
             )
         ]
