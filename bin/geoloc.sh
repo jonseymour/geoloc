@@ -179,6 +179,17 @@ show()
     map open $mac
 }
 
+#
+# rewrite the kismet file as MAC,SSID pairs
+# replace any unusual characters in the SSID with ?
+#
+rewrite-kismet()
+{
+    tr -c "[A-Za-z0-9:!~@#\$%^&*(){}_+='<>,./\\ ;]\012\015" '?' | sed -n "/^[0-9]/p" | cut -f4,3 -d\; | sort | uniq | sed "s/\(.*\);\(.*\)/\2 \1/"
+}
+
+
+
 # Functions on map objects
 # map create {map}
 # map open {map}
