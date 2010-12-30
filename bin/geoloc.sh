@@ -133,7 +133,7 @@ locate()
     if ! test -f "$file"
     then
          test -d "$dir" || mkdir -p "$dir" || die "could not make directory $dir"
-         fetch_location $mac $ssid > $file || die "fetch failed"
+         fetch_location "$mac" "$ssid" > $file || die "fetch failed"
     fi
     json=$(cat $file)
     test -n "$json" && echo "$json"
