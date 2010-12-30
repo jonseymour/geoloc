@@ -159,6 +159,26 @@ json_to_csv()
     format_json | sed -n "s/.*\"latitude\": *\(.*,\).*/\1/p;s/.*\"longitude\": *\(.*\)/\1\n/p;" | tr -d \\012 | sed "s/^/$(shrink_mac $mac),/;s/\$/,$ssid\n/"
 }
 
+show()
+{
+    local addr=$1
+
+    test -n "$addr" || die "fatal: usage show addr"
+    local mac=$(shrink_mac $addr)
+    local dir=$(map_dir $mac)
+    
+    if ! test -d "$dir"
+    then
+	map create $mac &&
+        rm $dir/center &&
+        ln -sf ../../mac_addresses/$mac $dir/center &&
+        echo 20 > $dir/zoom &&
+        map add $mac $mac || die "fatal: map creation failed"
+    fi
+    map build $mac &&
+    map open $mac
+}
+
 # Functions on map objects
 # map create {map}
 # map open {map}
@@ -260,6 +280,7 @@ test -n "$cmd" && shift 1
 
 if [ "$(type -t $cmd)" == "function" ] 
 then
+   check_init
    $cmd "$@"
 else
    die "fatal: command not supported: $cmd"
