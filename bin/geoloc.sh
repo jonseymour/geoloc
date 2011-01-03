@@ -295,6 +295,22 @@ map()
          :> $dir/dirty
     } 
 
+    import-kismet()
+    {
+         local map=$1
+         local dir=$(map_dir $map)
+         test -d "$dir" || die "usage: map import-kismet map < file"
+ 
+         rewrite-kismet | \
+         while read mac ssid
+         do
+              test -n "$mac" && 
+              loc=$(locate "$mac" "$ssid") &&
+              echo "$mac $ssid" &&
+	      add "$map" "$mac"
+         done 
+    }
+
     import-pcap()
     {
          shift 1
