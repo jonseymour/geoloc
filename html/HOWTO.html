@@ -103,28 +103,28 @@ This command will capture a pcap file by running tcpdump on the specified interf
 geoloc pcap capture mypcap mon0
 </pre>
 <h2>Import a pcap file</h2>
-This command will import a pcap file into the repository so that it can be acted on by other tools.
+This command will import a pcap stream into the repository so that it can be acted on by other tools.
 <pre>
 < $file geoloc pcap import mypcap 
 {some stream} | geoloc pcap import mypcap 
 </pre>
 <h2>List the access points in a pcap file</h2>
-This command lists the access points in a pcap file.
+This command lists the access points in an imported pcap file.
 <pre>
 geoloc pcap access_points mypcap
 </pre>
 <h2>List the clients in a pcap file</h2>
-This command lists the access points in an imported pcap file.
+This command lists the clients in an imported pcap file.
 <pre>
 geoloc pcap clients mypcap
 </pre>
 <h2>List the imported pcap files</h2>
-This command shows the names of imported pcap files
+This command shows the names of imported pcap files.
 <pre>
 geoloc pcap list
 </pre>
 <h2>Get the name of a pcap file</h2>
-This command shows the name of an imported pcap file.
+This command shows the full pathname of an imported pcap file.
 <pre>
 geoloc pcap file mypcap
 </pre>
@@ -139,13 +139,14 @@ This command lists the access points in a pcap file.
 geoloc pcap wireshark mypcap [ wireshark-args.. ]
 </pre>
 <h2>Create a map from the access points in a pcap file</h2>
-This command lists the access points in a pcap file. The map will be called pcap-{pcap}, where {pcap} is the pcap name.
+This command make a map from the access points in an imported pcap file. 
+The map will be called pcap-{pcap}, where {pcap} is the pcap name.
 The name of the map is written to stdout.
 <pre>
 geoloc pcap map mypcap
 </pre>
 <h2>Import the access points in a pcap file into the map</h2>
-This command will import the access points of an imported pcap file into a map.
+This command will import the access points of an imported pcap file into an existing map.
 <pre>
 geoloc map import-pcap mymap mypcap
 </pre>
