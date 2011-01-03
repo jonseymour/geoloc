@@ -360,7 +360,7 @@ interface()
 
           exists()
           {
-               ( interface list ) | tee debug.0 | grep "^${intf}\\$" >/dev/null | tee debug.1 || die "interface $intf does not exist"
+               ( interface list ) | grep "^${intf}\\$" >/dev/null || die "interface $intf does not exist"
           }
 
           dispatch "$@"
