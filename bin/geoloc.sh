@@ -202,8 +202,6 @@ rewrite-kismet()
     cleanse-binary | sed -n "/^[0-9]/p" | cut -f4,3 -d\; | sort | uniq | sed "s/\(.*\);\(.*\)/\2 \1/"
 }
 
-
-
 # Functions on map objects
 # map create {map}
 # map open {map}
@@ -212,6 +210,9 @@ rewrite-kismet()
 # map add {map} {addr}
 map()
 {
+    local map=$2
+    local dir=${GEOLOC_HOME}/db/maps/${map}
+
     create()
     {
          local map=$1
@@ -231,6 +232,18 @@ map()
             rm -rf $dir
          )
     }
+
+    dir() 
+    {
+        echo $dir
+    }
+
+     delete()
+     {
+         test -n "$map" || die "usage: geoloc map delete {name}"
+	 test -d "$dir" || die "$map does not exist"
+         rm -rf "${dir:-/tmp/geoloc}"
+     }
 
     list()
     {
