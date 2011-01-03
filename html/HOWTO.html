@@ -1,14 +1,42 @@
 <html>
 <body>
-<h1>Introduction</h1>
+<h1>Name</h1>
 <p>
-geoloc is a command which helps utilise information that Google maintains about the physical locations of WiFi access points.
+geoloc(1) - a command which helps utilise information that Google maintains about the physical locations of WiFi access points.
 </p>
-<p>It has functions for interrogating the Google location services and for building HTML and JavaScript that can be used to plot the returned
+<h1>Synopsis</h1>
+<pre>
+geoloc show {mac}
+geoloc locate {mac}
+
+geoloc interface list
+geoloc interface enable {intf}
+geoloc interface disable {intf}
+
+geoloc pcap list
+geoloc pcap capture {pcap} {intf}
+pcap-stream | geoloc pcap import {pcap} 
+geoloc pcap access_points {pcap}
+geoloc pcap clients {pcap}
+geoloc pcap file {pcap}
+geoloc pcap wireshark {pcap}
+geoloc pcap map {pcap}
+
+geoloc map list
+geoloc map create {map}
+geoloc map add {map} {mac}
+geeloc map import-pcap {map} {pcap}
+geoloc map build {map}
+geoloc map open {map}
+</pre>
+
+<h1>Description</h1>
+<p>geoloc functions for interrogating the Google location services and for building HTML and JavaScript that can be used to plot the returns
 information on a map.</p>
 <p>
 For some background, refer to: <a href="http://orwelliantremors.blogspot.com/2010/12/mobile-80211-parole-bracelet-for-man-in.html">http://orwelliantremors.blogspot.com/2010/12/mobile-80211-parole-bracelet-for-man-in.html</a>
 </p>
+
 <h1>Installation</h1>
 <p>These instructions assume you have a Unix like command line environment with bash, git, python and curl (with SSL libraries installed).</p>
 <dl>
@@ -26,7 +54,23 @@ git clone git://github.com/jonseymour/geoloc.git ~/.geoloc
 sudo ln -sf ~/.geoloc/bin/geoloc.sh /usr/local/bin/geoloc
 </pre>
 </dd>
-<h1>Usage</h1>
+
+
+<h2>Command Line Construction Conventions</h2>
+geoloc is designed to be command-line friendly, so its functions are generally of this form:
+<pre>
+geoloc object-type method object-name [ args... ] 
+</pre> 
+The object-name is usually the last argument to the command, so that lists of objects can easily be used with xargs -n1, if required. For example:
+<pre>
+geoloc pcap access_points some-pcap | xargs -n1 geoloc map add some-map
+</pre>
+<pre>
+geoloc map open $(geoloc pcap map some-pcap )
+</pre>
+
+<h1>Examples</h1>
+
 <h2>Show the location of a MAC address</h2>
 This command will retrieve the location details for a mac address from Google and display the formatted json document.
 <pre>
@@ -47,11 +91,62 @@ This command will add a new mac address to the map.
 <pre>
 geoloc map add mymap 002568CC80EB
 </pre>
-<h2>Import a kismet CSV file into the map</h2>
-This command will import a kismet CSV file. The file should have fields delimited by semicolons, the mac address should be in column 4, the SSID in column 3.
-One way to make these files is to run aircrack-ng(1).
+<h2>Enable a monitor interface</h2>
+This command will enable a monitor interface, using airmon-ng.
 <pre>
-geoloc map import-kismet mymap &lt; some-file.kismet.csv
+geoloc interface enable wlan0
+</pre>
+</pre>
+<h2>Capture a pcap file</h2>
+This command will capture a pcap file by running tcpdump on the specified interface (usually monX).
+<pre>
+geoloc pcap capture mypcap mon0
+</pre>
+<h2>Import a pcap file</h2>
+This command will import a pcap file.
+<pre>
+geoloc pcap import mypcap < $file
+</pre>
+<h2>List the access points in a pcap file</h2>
+This command lists the access points in a pcap file.
+<pre>
+geoloc pcap access_points mypcap
+</pre>
+<h2>List the clients in a pcap file</h2>
+This command lists the access points in an imported pcap file.
+<pre>
+geoloc pcap clients mypcap
+</pre>
+<h2>List the imported pcap files</h2>
+This command shows the names of imported pcap files
+<pre>
+geoloc pcap list
+</pre>
+<h2>Get the name of a pcap file</h2>
+This command shows the name of an imported pcap file.
+<pre>
+geoloc pcap file mypcap
+</pre>
+<h2>Run tshark on an imported pcap file</h2>
+This command runs tshark on an imported pcap file.
+<pre>
+geoloc pcap tshark mypcap [ tshark-args.. ]
+</pre>
+<h2>View a pcap file with wireshark</h2>
+This command lists the access points in a pcap file.
+<pre>
+geoloc pcap wireshark mypcap [ wireshark-args.. ]
+</pre>
+<h2>Create a map from the access points in a pcap file</h2>
+This command lists the access points in a pcap file. The map will be called pcap-{pcap}, where {pcap} is the pcap name.
+The name of the map is written to stdout.
+<pre>
+geoloc pcap map mypcap
+</pre>
+<h2>Import the access points in a pcap file into the map</h2>
+This command will import a pcap file, created by some other means.
+<pre>
+geoloc map import-pcap mymap mypcap
 </pre>
 <h2>Build the map HTML</h2>
 This command will generate the HTML (and Javascript) for a mostly static copy of the map (you still need live access to Google Maps!).
@@ -94,6 +189,10 @@ geoloc edit
 <dd>Contains a symbolic link to the mac address to be used for the center of the map. Usually FFFFFFFFFFFF - the local center</dd>
 <dt>db/maps/{map}/mac_addresses/{mac}</dt>
 <dd>Contains one symbolic link for each address to appear on the map</dd>
+<dt>db/pcaps</dt>
+<dd>Contains one directory for each imported pcap file</dd>
+<dt>db/pcaps/{pcap}</dt>
+<dd>The imported pcap file</dd>
 </dl>
 <h1>TODO</h1>
 Features I might add if I get the time:
@@ -103,5 +202,57 @@ Features I might add if I get the time:
 <li>improved user experience for the generated maps</li>
 </ul>
 
+<h2>Dependencies</h2>
+<dl>
+<dt>curl</dt>
+<dd>Acts as the HTTP client for interacting with Google APIs</dd>
+<dt>tshark</dt>
+<dd>A command line tool for manipulating pcap files.</dd>
+<dt>wireshark</dt>
+<dd>A tool for visualizing pcap files.</dd>
+<dt>airmon-ng</dt>
+<dd>A command line tool for enabling RF monitoring interfaces.</dd>
+</dl>
+
+<h2>Change Log</h2>
+<pre>
+Jon Seymour(36):
+      Added .gitignore
+      Update ignore rules.
+      Introduce lib.js.
+      Introduce geoloc.sh
+      Add map template to html directory.
+      Instead of defining variables, define a function that generates an array.
+      Introduce map functions.
+      Change GEOLOC_HOME to refer to ~/.geoloc, if there isn't a better one.
+      Suppress output of centre build.
+      Add support for showing an individual MAC address.
+      fix: ensure SSID is properly quoted.
+      Add support for importing kismet CSV files.
+      Add initialization check function.
+      Add a HOWTO document.
+      Enhanced documentation.
+      fix: normalize the address before adding it.
+      fix: cleanse kismet inputs.
+      fix: tolerate missing mac addresses better.
+      Add pocket-wifi example.
+      fix: cope with the odd empty (as opposed to default) response.
+      Add stanley-st example.
+      fix: don't map - in SSID to ?.
+      split cleanse into its own function
+      fix: normalize mac address during shrink.
+      fix: locate the address before building its map.
+      add qvbjet example.
+      Merge branch 'examples' into working
+      Add a pcaps directory to the database directory.
+      Expose normalize_mac_filter to callers.
+      Add now and today functions.
+      add functions for listing and testing interfaces.
+      support for show map directory and deleting an existing map.
+      support for managing pcap files.
+      add support for starting and stopping airmon
+      Merge branch 'master' into HEAD
+      Replace support for kismet with direct pcap file support.
+</pre>
 </body>
 </html>
