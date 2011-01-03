@@ -229,6 +229,7 @@ map()
               mkdir $dir/mac_addresses
               ln -sf ../../mac_addresses/FFFFFFFFFFFF $dir/center
               echo 14 > $dir/zoom
+              :> $dir/dirty
          ) || ( 
             rm -rf $dir
          )
@@ -271,6 +272,14 @@ map()
          local map=$1
          local dir=$(map_dir $map)
          test -d "$dir" || die "usage: map open map"
+
+         if test -e $dir/dirty
+         then
+	     build "$map"
+         fi
+         
+         test -e $dir/dirty && die "fatal: open failed due to previous errors"
+
          xdg-open $dir/index.html
     }
 
@@ -283,6 +292,7 @@ map()
          local mac=$(shrink_mac $addr)
          test -d "$dir" && test -n "$mac" || die "usage: map add map mac"
          test -e $dir/mac_addresses/$mac || ln -sf ../../../mac_addresses/$mac $dir/mac_addresses/$mac
+         :> $dir/dirty
     } 
 
     import-pcap()
@@ -296,6 +306,7 @@ map()
          do
 	     add $map $mac
          done
+         :> $dir/dirty
     }
 
     build()
@@ -323,7 +334,8 @@ function generator() {
     }
 }
 EOF
-         )
+         ) && rm $dir/dirty || die "build faild"
+        
     }
 
     dispatch "$@"
