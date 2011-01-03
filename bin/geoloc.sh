@@ -334,6 +334,33 @@ today()
     date +%Y%m%d
 }
 
+interface()
+{
+     assert()
+     {
+          local intf=$2
+
+          specified()
+          {
+               test -n "$intf" || die "an interface has not been specified"
+          }
+
+          exists()
+          {
+               ( interface list ) | tee debug.0 | grep "^${intf}\\$" >/dev/null | tee debug.1 || die "interface $intf does not exist"
+          }
+
+          dispatch "$@"
+     }
+
+     list() 
+     { 
+         ifconfig -s | tail -n +2 | cut -f1 -d' ' 
+     }
+
+     dispatch "$@"
+}
+
 check_init()
 {
     test -f ${GEOLOC_HOME}/js/lib.js || die "fatal: GEOLOC_HOME=$GEOLOC_HOME looks incorrect"
