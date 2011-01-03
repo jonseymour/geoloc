@@ -349,6 +349,8 @@ today()
 
 interface()
 {
+     local intf=$2
+
      assert()
      {
           local intf=$2
@@ -364,6 +366,18 @@ interface()
           }
 
           dispatch "$@"
+     }
+
+     enable()
+     {
+         assert exists $intf  
+         sudo airmon-ng start $intf   
+     }
+
+     disable()
+     {
+         assert exists $intf  
+         sudo airmon-ng stop $intf   
      }
 
      list() 
