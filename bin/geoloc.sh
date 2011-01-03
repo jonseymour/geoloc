@@ -53,7 +53,7 @@ format_json()
 shrink_mac()
 {
     local mac=$1
-    echo $mac | tr -d ':-'
+    echo $mac | tr -d ':-' | tr '[a-z]' '[A-Z]'
 }
 
 # Expand a shrunk MAC address with the specified separator
