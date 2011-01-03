@@ -208,6 +208,7 @@ rewrite-kismet()
 # map list
 # map build {map}
 # map add {map} {addr}
+# map import-pcap {map} {pcap}
 map()
 {
     local map=$2
@@ -238,12 +239,12 @@ map()
         echo $dir
     }
 
-     delete()
-     {
+    delete()
+    {
          test -n "$map" || die "usage: geoloc map delete {name}"
 	 test -d "$dir" || die "$map does not exist"
          rm -rf "${dir:-/tmp/geoloc}"
-     }
+    }
 
     list()
     {
@@ -284,20 +285,17 @@ map()
          test -e $dir/mac_addresses/$mac || ln -sf ../../../mac_addresses/$mac $dir/mac_addresses/$mac
     } 
 
-    import-kismet()
+    import-pcap()
     {
-         local map=$1
-         local dir=$(map_dir $map)
-         test -d "$dir" || die "usage: map import-kismet map < file"
- 
-         rewrite-kismet | \
-         while read mac ssid
+         shift 1
+         local pcap=$1
+         local mac
+         ( pcap assert exists "$pcap" ) || exit 1
+
+         ( pcap access_points "$pcap" ) | while read mac
          do
-              test -n "$mac" && 
-              loc=$(locate "$mac" "$ssid") &&
-              echo "$mac $ssid" &&
-	      add "$map" "$mac"
-         done 
+	     add $map $mac
+         done
     }
 
     build()
@@ -538,11 +536,12 @@ pcap()
          assert pcap exists "$pcap"
 
          map_dir=$(map dir $map)
-         test -d "${map_dir}" && $(map delete $map)
-         ( map create $map ) || exit $?
-         pcap access_points $pcap | xargs -n1 geoloc map add "${map}"
-         map build "${map}"
-         echo "${map}"
+         if ! test -d "${map_dir}" 
+         then
+             ( map create $map ) || exit $?
+             ( map import-pcap $map $pcap ) || exit $?
+         fi
+         echo "${map}" || die "failed to build map ${map}"
      }
 
      if [ "$1" == "map" ]
