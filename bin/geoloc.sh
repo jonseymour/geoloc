@@ -318,6 +318,22 @@ EOF
     dispatch "$@"
 }
 
+#
+# The current second in the form yyyymmddThhmmss
+#
+now()
+{
+    date +%Y%m%dT%H%M%S
+}
+
+#
+# The current day in the form yyyymmdd
+#
+today()
+{
+    date +%Y%m%d
+}
+
 check_init()
 {
     test -f ${GEOLOC_HOME}/js/lib.js || die "fatal: GEOLOC_HOME=$GEOLOC_HOME looks incorrect"
