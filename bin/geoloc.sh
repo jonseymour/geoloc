@@ -374,6 +374,172 @@ interface()
      dispatch "$@"
 }
 
+# 
+# manage pcap files
+#
+# pcap files are found in db/pcaps/${pcap}/pcap
+#
+pcap()
+{
+     local pcap=$2
+     local dir=${GEOLOC_HOME}/db/pcaps/${pcap}
+     local file=${dir}/pcap
+     local map=pcap-${pcap}
+ 
+     list()
+     {
+         ( 
+	     cd ${GEOLOC_HOME}/db/pcaps
+	     find . -maxdepth 1 -type d | sed "s/^..//;/^.\$/d"
+         )
+     }
+
+     dir()
+     {
+         echo $dir
+     }
+
+     file()
+     {
+         echo $file
+     }
+
+     wireshark()
+     {
+	 pcap assert exists $pcap 
+         shift 1 
+	 $(which wireshark) $file "$@"
+     }
+
+     tshark()
+     {
+	 pcap assert exists $pcap 
+         shift 1
+	 $(which tshark) -r $file "$@"
+     }
+
+     assert()
+     {
+         local pcap=$2
+         local dir=${GEOLOC_HOME}/db/pcaps/${pcap}
+         local file=${dir}/pcap
+
+         specified()
+         {
+	     test -n "$pcap" || die "pcap is not specified"
+         }
+
+         exists()
+         {
+             specified &&
+	     test -d "$dir" || die "pcap $pcap does not exist"
+         }
+
+         does_not_exist()
+         {
+             specified &&
+	     test -d "$dir" && die "pcap $pcap already exists"
+             true
+         }
+ 
+         dispatch "$@"
+     }
+
+     import()
+     {
+
+         test -n "$pcap" || die "usage: geoloc pcap import {name} < pcap"
+	 pcap assert does_not_exist $pcap 
+         mkdir -p $dir || die "fatal: could not make $dir"
+         cat > $file || die "fatal: could not import pcap $dir/pcap"
+     }
+
+     delete()
+     {
+         test -n "$pcap" || die "usage: geoloc pcap delete {name}"
+	 pcap assert exists $pcap 
+
+	 rm -rf "${dir}"
+     }
+
+     access_points()
+     {
+         test -n "$pcap" || die "usage: geoloc pcap access_points {name}"
+	 pcap assert exists $pcap 
+         (
+             tshark $pcap -Tfields -e wlan.sa "wlan.fc.type_subtype == 0x05"
+             tshark $pcap -Tfields -e wlan.sa "wlan.fc.type_subtype == 0x08"
+         ) | normalize_mac_filter | sort | uniq
+     }
+
+     clients()
+     {
+         test -n "$pcap" || die "usage: geoloc pcap clients {name}"
+	 pcap assert exists $pcap 
+         (
+            tshark $pcap -Tfields -e wlan.sa "wlan.fc.type_subtype == 0x04" 
+            tshark $pcap -Tfields -e wlan.da "wlan.fc.type_subtype == 0x05" 
+         ) | normalize_mac_filter | sort | uniq
+     }
+
+     capture()
+     {
+         shift 1
+         local intf=$1
+         shift 1
+
+         (
+              pcap assert specified $pcap
+              interface assert specified $intf
+         ) || {
+	      die "usage: geoloc pcap capture {name} {interface} [ filter ... ]"
+         }
+                    
+	 pcap assert does_not_exist $pcap 
+         interface assert exists $intf
+
+         mkdir -p $dir || die "fatal: could not make $dir"
+
+         sudo tcpdump -w "$file" -s 0 -i "${intf}" "$@"
+     }
+
+     rename()
+     {
+         shift 1
+         local new=$1
+
+         pcap assert exists $pcap
+         ( pcap assert does_not_exist $new ) || exit $?
+ 
+         mv "$dir" $(pcap dir "$new") || die "could not rename $pcap to $new"
+     }
+
+     simple()
+     {
+         tshark $pcap -Tfields -Eseparator=\; -e frame.time_relative -e wlan.fc.type_subtype -e wlan.sa -e wlan.da -e wlan.ta -e wlan.ra -e wlan_mgt.ssid
+     }
+
+     _map()
+     {
+         assert pcap exists "$pcap"
+
+         map_dir=$(map dir $map)
+         test -d "${map_dir}" && $(map delete $map)
+         ( map create $map ) || exit $?
+         pcap access_points $pcap | xargs -n1 geoloc map add "${map}"
+         map build "${map}"
+         echo "${map}"
+     }
+
+     if [ "$1" == "map" ]
+     then
+        shift 1
+        set -- _map "$@"
+     fi
+
+     dispatch "$@"
+}
+
 check_init()
 {
     test -f ${GEOLOC_HOME}/js/lib.js || die "fatal: GEOLOC_HOME=$GEOLOC_HOME looks incorrect"
