@@ -165,6 +165,28 @@ Don't like how it works? You can edit the script yourself.
 <pre>
 geoloc edit
 </pre>
+
+<h1>Deprecated Examples</h1>
+<h2>Import a kismet.csv file</h2>
+This command can be used to import a kismet CSV file. Note that this support is
+deprecated and will be removed from future versions. Please consider using the
+pcap commands instead.
+<pre>
+geoloc map import-kismet mymap < some-name.kismet.csv
+</pre>
+
+<h1>Dependencies</h1>
+<dl>
+<dt>curl</dt>
+<dd>Acts as the HTTP client for interacting with Google APIs</dd>
+<dt>tshark</dt>
+<dd>A command line tool for manipulating pcap files.</dd>
+<dt>wireshark</dt>
+<dd>A tool for visualizing pcap files.</dd>
+<dt>airmon-ng</dt>
+<dd>A command line tool for enabling RF monitoring interfaces.</dd>
+</dl>
+
 <h1>File System Structure</h1>
 <dl>
 <dt>bin/</dt>
@@ -204,19 +226,7 @@ Features I might add if I get the time:
 <li>improved user experience for the generated maps</li>
 </ul>
 
-<h2>Dependencies</h2>
-<dl>
-<dt>curl</dt>
-<dd>Acts as the HTTP client for interacting with Google APIs</dd>
-<dt>tshark</dt>
-<dd>A command line tool for manipulating pcap files.</dd>
-<dt>wireshark</dt>
-<dd>A tool for visualizing pcap files.</dd>
-<dt>airmon-ng</dt>
-<dd>A command line tool for enabling RF monitoring interfaces.</dd>
-</dl>
-
-<h2>Change Log</h2>
+<h1>Change Log</h1>
 <pre>
 Jon Seymour (37):
       Added .gitignore
