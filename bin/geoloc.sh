@@ -49,11 +49,19 @@ format_json()
     python -c "import sys, json; json.encoder.FLOAT_REPR=str; print json.dumps(json.load(sys.stdin), sort_keys=True, indent=4)"
 }
 
+#
+# normalize the MAC to be string of 12 upper case hex digits
+#
+normalize_mac_filter()
+{
+    sed "/^\$/d" | tr -d ':' | tr '[a-f]' '[A-F]'
+}
+
 # Remove separators from a MAC address
 shrink_mac()
 {
     local mac=$1
-    echo $mac | tr -d ':-' | tr '[a-z]' '[A-Z]'
+    echo $mac | normalize_mac_filter
 }
 
 # Expand a shrunk MAC address with the specified separator
