@@ -103,9 +103,10 @@ This command will capture a pcap file by running tcpdump on the specified interf
 geoloc pcap capture mypcap mon0
 </pre>
 <h2>Import a pcap file</h2>
-This command will import a pcap file.
+This command will import a pcap file into the repository so that it can be acted on by other tools.
 <pre>
-geoloc pcap import mypcap < $file
+< $file geoloc pcap import mypcap 
+{some stream} | geoloc pcap import mypcap 
 </pre>
 <h2>List the access points in a pcap file</h2>
 This command lists the access points in a pcap file.
@@ -144,7 +145,7 @@ The name of the map is written to stdout.
 geoloc pcap map mypcap
 </pre>
 <h2>Import the access points in a pcap file into the map</h2>
-This command will import a pcap file, created by some other means.
+This command will import the access points of an imported pcap file into a map.
 <pre>
 geoloc map import-pcap mymap mypcap
 </pre>
