@@ -166,9 +166,10 @@ show()
     test -n "$addr" || die "fatal: usage show addr"
     local mac=$(shrink_mac $addr)
     local dir=$(map_dir $mac)
-    
+
     if ! test -d "$dir"
     then
+        locate "$mac" >/dev/null # prime the cache
 	map create $mac &&
         rm $dir/center &&
         ln -sf ../../mac_addresses/$mac $dir/center &&
