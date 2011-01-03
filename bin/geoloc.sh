@@ -372,7 +372,7 @@ interface()
 
           exists()
           {
-               ( interface list ) | grep "^${intf}\\$" >/dev/null || die "interface $intf does not exist"
+               ( interface list ) | grep "^${intf}\$" >/dev/null || die "interface $intf does not exist"
           }
 
           dispatch "$@"
