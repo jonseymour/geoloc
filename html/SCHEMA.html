@@ -1,0 +1,41 @@
+<html>
+<body>
+<h1>Schema Notes</h1>
+<p>
+  This document describes the layout of the geoloc db directory. As the schema changes in significant ways the required version number will be increased. Later versions of geoloc will refuse to operate on earlier versions of the geoloc database until they have been migrated to the current version using the geoloc migrate function.
+</p>
+
+<h2>Version 0</h2>
+This is the initial version of the schema. All geoloc instances prior to the introduction of schema versioning
+are assumed to comply with this schema. 
+
+<dl>
+<dt>db/mac_addresses</dt>
+<dd>contains one subdirectory for each mac address</dd>
+<dt>db/mac_addresses/{mac}/</dt>
+<dd>contains JSON documents describing a MAC address</dd>
+<dt>db/mac_addresses/{mac}/current</dt>
+<dd>contains the JSON document for the named mac address</dd>
+<dt>db/maps</dt>
+<dd>contains one directory for each map</dd>
+<dt>db/maps/{map}/index.html</dt>
+<dd>contains the html for a Google Map. Created by map create {map}.</dd>
+<dt>db/maps/{map}/generator.js</dt>
+<dd>contains the compiled data for the map. Created by map build {map}.</dd>
+<dt>db/maps/{map}/zoom</dt>
+<dd>Contains the map zoom value. Created by map create {map}.</dd>
+<dt>db/maps/{map}/center</dt>
+<dd>Contains a symbolic link to the mac address to be used for the center of the map. Usually FFFFFFFFFFFF - the local center</dd>
+<dt>db/maps/{map}/mac_addresses/{mac}</dt>
+<dd>Contains one symbolic link for each address to appear on the map</dd>
+<dt>db/pcaps</dt>
+<dd>Contains one directory for each imported pcap file</dd>
+<dt>db/pcaps/{pcap}</dt>
+<dd>The imported pcap file</dd>
+</dl>
+
+<h2>Version 1</h2>
+
+As per Version 0, but with the database schema version of 1 encoded in the file db/version.
+</body>
+</html>
