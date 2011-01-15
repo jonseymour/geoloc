@@ -27,7 +27,7 @@ function map_initialize() {
      
         if (before[i].location != undefined && 
 	    before[i].location.accuracy != undefined && 
-	    before[i].location.accuracy < 144000)
+	    before[i].location.accuracy < 140000)
 	{
             beforeitem = before[i];
 	}
@@ -35,7 +35,7 @@ function map_initialize() {
        
         if (after[i].location != undefined && 
 	    after[i].location.accuracy != undefined 
-	    && after[i].location.accuracy < 144000)
+	    && after[i].location.accuracy < 140000)
 	{
             afteritem = after[i];
 	}
@@ -50,12 +50,18 @@ function map_initialize() {
                     && afteritem.location.longitude == beforeitem.location.longitude)
    	        {
 		    title = "unchanged: "+afteritem.mac_address;
+                    continue;
 		}
                 else
 	        {
 		    title = "before: "+beforeitem.mac_address;
 		}
 	    }
+            else
+	    {
+                title = "deleted: "+beforeitem.mac_address;
+	    }
+
     	    new google.maps.Marker({
 	      	position: new google.maps.LatLng(beforeitem.location.latitude, beforeitem.location.longitude), 
       		map: map, 
@@ -67,7 +73,7 @@ function map_initialize() {
         {
             var afterpos = new google.maps.LatLng(afteritem.location.latitude, afteritem.location.longitude)
 
-            if (afteritem != undefined)
+            if (beforeitem != undefined)
 	    {
                 if (afteritem.location.latitude == beforeitem.location.latitude 
                     && afteritem.location.longitude == beforeitem.location.longitude)
@@ -84,6 +90,11 @@ function map_initialize() {
 			    path: [ afterpos, beforepos ]
    		    })
 		}
+	    }
+            else
+	    {
+		title = "added: "+afteritem.mac_address;
+                continue;
 	    }
 
     	    new google.maps.Marker({
