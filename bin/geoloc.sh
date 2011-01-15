@@ -534,13 +534,22 @@ pcap()
          ) || {
 	      die "usage: geoloc pcap capture {name} {interface} [ filter ... ]"
          }
+
+         test -n "$dir" || die "logic error: $dir is blank"
                     
 	 pcap assert does_not_exist $pcap 
          interface assert exists $intf
 
          mkdir -p $dir || die "fatal: could not make $dir"
 
-         sudo tcpdump -w "$file" -s 0 -i "${intf}" "$@"
+         (
+
+            ln -sf pcap-01.cap ${file} &&
+            sudo airodump-ng --output-format=pcap -w "$file" "${intf}" "$@"
+         ) || (
+            rm -rf "${dir:-/tmp/foobar}"
+            exit 1
+         )
      }
 
      rename()
