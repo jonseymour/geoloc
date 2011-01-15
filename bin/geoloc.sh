@@ -280,7 +280,7 @@ map()
          
          test -e $dir/dirty && die "fatal: open failed due to previous errors"
 
-         xdg-open $dir/index.html
+         platform open $dir/index.html
     }
 
     add()
@@ -640,6 +640,39 @@ db()
 
     dispatch "$@"
 }
+
+platform()
+{
+    darwin()
+    {
+        open()
+        {
+            $(which open) "$@"
+        }
+        dispatch "$@" 
+    }
+
+    default()
+    {
+        open()
+        {
+            $(which xdg-open) "$@"
+        }
+        dispatch "$@" 
+    }
+
+    case $(uname) in
+	Darwin*)
+	    darwin "$@"
+        ;;
+        *)
+	    default "$@" 
+        ;; 
+    esac
+
+    dispatch "$@"
+}
+
 
 check_init()
 {
