@@ -1,6 +1,6 @@
 function before_generator() {
     return {
-	zoom: 14,
+	zoom: 5,
         center: {
 	    "access_token": "2:SRcgTWwrQTM2aJ1g:8BSFoVGMG5Hl3una", 
 		"accessed_at": "20101230T080334", 
