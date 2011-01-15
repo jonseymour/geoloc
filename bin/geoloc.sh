@@ -587,7 +587,58 @@ pcap()
         set -- _map "$@"
      fi
 
+     ( db assert version ) || exit $?
      dispatch "$@"
+}
+
+db()
+{
+    version()
+    {
+        if test -f ${GEOLOC_HOME}/db/version
+        then
+            cat ${GEOLOC_HOME}/db/version            
+        else
+	    echo 0
+        fi
+    }
+
+    self()
+    {
+	echo 1
+    }
+
+    migrate()
+    {
+	local version=$(version)
+	case $version in 
+	    0)
+		echo 1 >${GEOLOC_HOME}/db/version
+	    ;;
+            *)
+		die "migration from version $version is not supported"
+	    ;;
+	esac
+    }
+
+    assert()
+    {
+        _version()
+        {
+            local required=${1:-$(self)}
+            local actual=$(db version)
+
+            test "$actual" -ge "$required" || die "geoloc db needs to be migrated to version $required. use geoloc db migrate"
+            true
+        }
+
+        cmd=_$1
+        shift 1
+        dispatch $cmd "$@"
+    }
+
+
+    dispatch "$@"
 }
 
 check_init()
@@ -603,6 +654,14 @@ test -n "$cmd" && shift 1
 if [ "$(type -t $cmd)" == "function" ] 
 then
    check_init
+   case $cmd in
+       db)
+	   :
+       ;;
+       *)
+	   ( db assert version ) || exit $?
+       ;;
+   esac
    $cmd "$@"
 else
    die "fatal: command not supported: $cmd"
