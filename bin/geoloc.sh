@@ -147,6 +147,47 @@ locate()
     test -n "$json" && echo "$json"
 }
 
+base_station()
+{
+    random_suffix()
+    {
+        dd count=1 bs=3 2>/dev/null < /dev/urandom | od -tx1 - | cut -f2- -d' ' | head -1 | tr -d ' ' | tr [a-f] [A-F] 
+    }
+
+    run()
+    {
+       local pid
+       local uptime=300
+       local prefix=402243
+       local essid=MERCATORIAL
+       local channel=6
+       local intf=mon0
+
+       test -d ${GEOLOC_HOME}/logs || mkdir -p ${GEOLOC_HOME}/logs || die "unable to create logs directory"
+
+       echo $$ > ${GEOLOC_HOME}/logs/basestation.pid
+
+       while [ -e ${GEOLOC_HOME}/logs/basestation.pid ]
+       do
+           local addr=${prefix}$(random_suffix)
+           local timestamp=$(date +%Y%m%dT%H%M%S)
+           geoloc locate $addr
+           echo $timestamp $uptime $addr
+           echo $timestamp $uptime $addr >> ${GEOLOC_HOME}/logs/base-station.log
+
+           trap - INT TERM
+	   airbase-ng -a ${addr} -e ${essid} -c $channel $intf 1>&2 &
+	   pid=$!
+           trap "kill -TERM $pid; rm ${GEOLOC_HOME}/logs/basestation.pid" INT TERM
+	   sleep $uptime
+	   kill $pid
+	   wait $pid
+       done 2>/dev/null
+    }
+
+    dispatch "$@"
+}
+
 # As per locate, but format it as CSV
 locate_csv()
 {
