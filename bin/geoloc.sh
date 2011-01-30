@@ -304,7 +304,7 @@ map()
 
          ( 
 	     cd $dir/mac_addresses
-	     ( find -maxdepth 1 -type d; find -maxdepth 1 -type l)  | sed "s/^..//;/^.\$/d"
+	     ( find . -maxdepth 1 -type d; find . -maxdepth 1 -type l)  | sed "s/^..//;/^.\$/d"
          )
     }
 
