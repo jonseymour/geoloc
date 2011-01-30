@@ -391,7 +391,9 @@ function generator() {
     }
 }
 EOF
-         ) && rm $dir/dirty || die "build faild"
+         ) && { 
+	     ! test -d $dir/dirty || rm $dir/dirty 
+	 } || die "build faild"
         
     }
 
